@@ -22,6 +22,9 @@ import { DealContactsPanel } from "@/components/deals/deal-contacts-panel";
 import { DealStageHistory } from "@/components/deals/deal-stage-history";
 import { DealCustomFields } from "@/components/deals/deal-custom-fields";
 import { DealActivityPanel } from "./deal-activity-panel";
+import { DealCapexTab } from "@/components/deals/deal-capex-tab";
+import { DealDebtTab } from "@/components/deals/deal-debt-tab";
+import { DealDocumentsTab } from "@/components/deals/deal-documents-tab";
 import {
   MapPin,
   Calendar,
@@ -138,6 +141,9 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
         <TabsTrigger value="economics">Economics</TabsTrigger>
         <TabsTrigger value="contacts">Contacts</TabsTrigger>
         <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsTrigger value="capex">CapEx</TabsTrigger>
+        <TabsTrigger value="debt">Debt</TabsTrigger>
+        <TabsTrigger value="documents">Documents</TabsTrigger>
       </TabsList>
 
       {/* Overview Tab */}
@@ -357,6 +363,27 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
       <TabsContent value="activity">
         <div className="mt-4">
           <DealActivityPanel dealId={deal.id} interactions={interactions} />
+        </div>
+      </TabsContent>
+
+      {/* CapEx Tab */}
+      <TabsContent value="capex">
+        <div className="mt-4">
+          <DealCapexTab dealId={deal.id} />
+        </div>
+      </TabsContent>
+
+      {/* Debt Tab */}
+      <TabsContent value="debt">
+        <div className="mt-4">
+          <DealDebtTab dealId={deal.id} />
+        </div>
+      </TabsContent>
+
+      {/* Documents Tab */}
+      <TabsContent value="documents">
+        <div className="mt-4">
+          <DealDocumentsTab dealId={deal.id} />
         </div>
       </TabsContent>
     </Tabs>

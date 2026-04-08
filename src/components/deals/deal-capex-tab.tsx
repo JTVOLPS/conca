@@ -100,7 +100,8 @@ export function DealCapexTab({ dealId }: DealCapexTabProps) {
   }, [fetchProjects]);
 
   const form = useForm<CapexProjectFormData>({
-    resolver: zodResolver(capexProjectSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(capexProjectSchema) as any,
     defaultValues: {
       deal_id: dealId,
       property_id: "",
