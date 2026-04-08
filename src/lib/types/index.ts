@@ -46,6 +46,7 @@ export type Investor = Tables<"investors">;
 export type InvestorCommitment = Tables<"investor_commitments">;
 export type InvestorDistribution = Tables<"investor_distributions">;
 export type WaterfallTier = Tables<"waterfall_tiers">;
+export type Notification = Tables<"notifications">;
 
 // ---------------------------------------------------------------------------
 // Enum-like union types extracted from the schema for standalone use
@@ -74,3 +75,4 @@ export type RateType = DebtInstrument["rate_type"];
 export type InvestorType = Investor["type"];
 export type CommitmentStatus = InvestorCommitment["status"];
 export type DistributionType = InvestorDistribution["type"];
+export type NotificationType = Notification["type"];

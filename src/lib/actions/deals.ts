@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { dealSchema, type DealFormData } from "@/lib/schemas/deal";
 import type { DealStage } from "@/lib/constants/deal-stages";
+import { notifyDealStageChanged } from "@/lib/actions/notification-triggers";
 
 export async function getDeals(options?: {
   search?: string;
@@ -234,7 +235,7 @@ export async function updateDealStage(
 
   const { data: currentDeal } = await supabase
     .from("deals")
-    .select("stage, org_id")
+    .select("stage, org_id, name, assigned_to")
     .eq("id", dealId)
     .single();
 
@@ -257,6 +258,29 @@ export async function updateDealStage(
       to_stage: newStage,
       changed_by: user.id,
     });
+
+    // Notify the deal's assigned user about the stage change
+    if (currentDeal.assigned_to && currentDeal.assigned_to !== user.id) {
+      try {
+        const { data: changerProfile } = await supabase
+          .from("user_profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        notifyDealStageChanged(
+          currentDeal.org_id,
+          dealId,
+          currentDeal.name,
+          currentDeal.assigned_to,
+          currentDeal.stage,
+          newStage,
+          changerProfile?.full_name ?? "Someone"
+        );
+      } catch {
+        // Notification should not block deal stage update
+      }
+    }
   }
 
   if (!error) revalidatePath("/deals");

@@ -2087,6 +2087,78 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          org_id: string;
+          user_id: string;
+          type:
+            | "task_assigned"
+            | "deal_stage_changed"
+            | "lease_expiring"
+            | "document_uploaded"
+            | "commitment_created"
+            | "distribution_created";
+          title: string;
+          body: string | null;
+          entity_type: string | null;
+          entity_id: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          user_id: string;
+          type:
+            | "task_assigned"
+            | "deal_stage_changed"
+            | "lease_expiring"
+            | "document_uploaded"
+            | "commitment_created"
+            | "distribution_created";
+          title: string;
+          body?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          user_id?: string;
+          type?:
+            | "task_assigned"
+            | "deal_stage_changed"
+            | "lease_expiring"
+            | "document_uploaded"
+            | "commitment_created"
+            | "distribution_created";
+          title?: string;
+          body?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       v_rent_roll: {

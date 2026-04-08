@@ -4,6 +4,7 @@ import * as React from "react";
 import { Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/layout/user-menu";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { MobileSidebar } from "@/components/layout/sidebar";
 import type { UserProfile } from "@/lib/types";
 
@@ -46,8 +47,9 @@ export function Topbar({ user, email }: TopbarProps) {
           </Button>
         </div>
 
-        {/* Right: User menu */}
+        {/* Right: Notifications + User menu */}
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <UserMenu user={user} email={email} />
         </div>
       </header>

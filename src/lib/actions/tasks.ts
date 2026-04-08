@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { taskSchema, type TaskFormData } from "@/lib/schemas/task";
 import { sendEmail } from "@/lib/email/send";
 import { taskAssignedTemplate } from "@/lib/email/templates";
+import { notifyTaskAssigned } from "@/lib/actions/notification-triggers";
 
 export async function createTask(formData: TaskFormData) {
   const supabase = await createClient();
@@ -87,6 +88,27 @@ export async function createTask(formData: TaskFormData) {
         }
       } catch {
         // Email sending should not block task creation
+      }
+
+      // In-app notification for task assignment
+      try {
+        const { data: assignerProfile } = await supabase
+          .from("user_profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        if (data) {
+          notifyTaskAssigned(
+            orgId,
+            data.id,
+            assignedTo,
+            assignerProfile?.full_name ?? "Someone",
+            parsed.data.title
+          );
+        }
+      } catch {
+        // Notification should not block task creation
       }
     }
   }
