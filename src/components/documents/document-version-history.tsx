@@ -89,7 +89,7 @@ export function DocumentVersionHistory({
   }, [open, documentGroupId]);
 
   async function handleDownload(storagePath: string) {
-    const { url, error: dlError } =
+    const { data: url, error: dlError } =
       await getDocumentDownloadUrl(storagePath);
     if (dlError || !url) {
       return;

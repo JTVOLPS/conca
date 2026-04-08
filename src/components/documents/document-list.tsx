@@ -112,7 +112,7 @@ export function DocumentList({
   const [versionTarget, setVersionTarget] = useState<string | null>(null);
 
   async function handleDownload(doc: DocumentRow) {
-    const { url, error } = await getDocumentDownloadUrl(doc.storage_path);
+    const { data: url, error } = await getDocumentDownloadUrl(doc.storage_path);
     if (error || !url) return;
     window.open(url, "_blank");
   }

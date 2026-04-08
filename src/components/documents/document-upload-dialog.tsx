@@ -120,19 +120,16 @@ export function DocumentUploadDialog({
       }
 
       // Create document record via server action
-      const documentGroupId = crypto.randomUUID();
       const { error: createError } = await createDocument({
         storage_path: storagePath,
         file_name: file.name,
         file_size: file.size,
-        mime_type: file.type || null,
-        entity_type: entityType as "deal" | "property" | "contact" | "company",
+        mime_type: file.type || "application/octet-stream",
+        entity_type: entityType,
         entity_id: entityId,
-        category: category || null,
+        category: category || undefined,
         tags,
-        notes: notes || null,
-        document_group_id: documentGroupId,
-        org_id: orgId,
+        notes: notes || undefined,
       });
 
       if (createError) {
