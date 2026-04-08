@@ -16,7 +16,7 @@ export async function getTenants(
 
   let query = supabase
     .from("tenants")
-    .select("*, leases(id, start_date, end_date, monthly_rent, status)", {
+    .select("*, leases(id, start_date, end_date, rent_amount, lease_type)", {
       count: "exact",
     })
     .eq("property_id", propertyId)
@@ -28,7 +28,7 @@ export async function getTenants(
 
   if (options?.search) {
     query = query.or(
-      `name.ilike.%${options.search}%,email.ilike.%${options.search}%,unit_number.ilike.%${options.search}%`
+      `name.ilike.%${options.search}%,unit_label.ilike.%${options.search}%`
     );
   }
 

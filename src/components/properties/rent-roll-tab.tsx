@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   Plus,
@@ -42,7 +42,7 @@ interface TenantRow {
     id: string;
     start_date: string;
     end_date?: string | null;
-    monthly_rent?: number | null;
+    rent_amount?: number | null;
     status?: string | null;
   }>;
 }
@@ -110,7 +110,7 @@ export function RentRollTab({
   const loadTenants = useCallback(async () => {
     setLoading(true);
     const result = await getTenants(propertyId);
-    setTenants((result.data ?? []) as TenantRow[]);
+    setTenants((result.data ?? []) as unknown as TenantRow[]);
     setLoading(false);
   }, [propertyId]);
 
@@ -150,7 +150,7 @@ export function RentRollTab({
   // Sum monthly rents from latest leases
   const monthlyRent = tenants.reduce((sum, t) => {
     const latestLease = t.leases?.[0];
-    return sum + (latestLease?.monthly_rent ?? 0);
+    return sum + (latestLease?.rent_amount ?? 0);
   }, 0);
 
   const columns: ColumnDef<TenantRow, unknown>[] = [
@@ -201,11 +201,11 @@ export function RentRollTab({
       ),
     },
     {
-      id: "monthly_rent",
+      id: "rent_amount",
       header: ({ column }) => (
         <SortableHeader column={column}>Monthly Rent</SortableHeader>
       ),
-      accessorFn: (row) => row.leases?.[0]?.monthly_rent ?? null,
+      accessorFn: (row) => row.leases?.[0]?.rent_amount ?? null,
       cell: ({ getValue }) => (
         <span className="text-sm">
           {formatCurrency(getValue() as number | null)}

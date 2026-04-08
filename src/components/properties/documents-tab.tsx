@@ -70,8 +70,8 @@ export function DocumentsTab({ propertyId }: DocumentsTabProps) {
 
   async function handleDownload(doc: DocumentRow) {
     const result = await getDocumentDownloadUrl(doc.storage_path);
-    if (result.url) {
-      window.open(result.url, "_blank");
+    if (result.data) {
+      window.open(result.data, "_blank");
     }
   }
 

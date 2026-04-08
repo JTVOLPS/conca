@@ -24,7 +24,7 @@ export async function getDebtInstruments(options?: {
 
   let query = supabase
     .from("debt_instruments")
-    .select("*, companies:lender_id(id, name)", { count: "exact" })
+    .select("*, companies:lender_company_id(id, name)", { count: "exact" })
     .order("created_at", { ascending: false });
 
   if (options?.propertyId) {
@@ -54,7 +54,7 @@ export async function getDebtInstrument(id: string) {
 
   const { data, error } = await supabase
     .from("debt_instruments")
-    .select("*, companies:lender_id(id, name)")
+    .select("*, companies:lender_company_id(id, name)")
     .eq("id", id)
     .single();
 
@@ -171,7 +171,7 @@ export async function getDebtMaturitySchedule() {
 
   const { data, error } = await supabase
     .from("debt_instruments")
-    .select("*, companies:lender_id(id, name), properties(id, name)")
+    .select("*, companies:lender_company_id(id, name), properties(id, name)")
     .not("maturity_date", "is", null)
     .order("maturity_date", { ascending: true });
 

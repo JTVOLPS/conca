@@ -72,7 +72,7 @@ export function DebtTab({ propertyId, dealId }: DebtTabProps) {
   const loadInstruments = useCallback(async () => {
     setLoading(true);
     const result = await getDebtInstruments({ propertyId, dealId });
-    setInstruments((result.data ?? []) as DebtRow[]);
+    setInstruments((result.data ?? []) as unknown as DebtRow[]);
     setLoading(false);
   }, [propertyId, dealId]);
 
