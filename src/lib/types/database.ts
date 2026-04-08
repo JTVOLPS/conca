@@ -1087,6 +1087,9 @@ export type Database = {
           tags: string[];
           version: number;
           uploaded_by: string | null;
+          notes: string | null;
+          updated_at: string;
+          document_group_id: string;
           created_at: string;
         };
         Insert: {
@@ -1102,6 +1105,9 @@ export type Database = {
           tags?: string[];
           version?: number;
           uploaded_by?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+          document_group_id: string;
           created_at?: string;
         };
         Update: {
@@ -1117,6 +1123,9 @@ export type Database = {
           tags?: string[];
           version?: number;
           uploaded_by?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+          document_group_id?: string;
           created_at?: string;
         };
         Relationships: [
@@ -1224,8 +1233,567 @@ export type Database = {
           },
         ];
       };
+      tenants: {
+        Row: {
+          id: string;
+          org_id: string;
+          property_id: string;
+          name: string;
+          contact_id: string | null;
+          unit_label: string | null;
+          status:
+            | "active"
+            | "expired"
+            | "month_to_month"
+            | "vacating"
+            | "vacated";
+          occupied_sf: number | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          property_id: string;
+          name: string;
+          contact_id?: string | null;
+          unit_label?: string | null;
+          status?:
+            | "active"
+            | "expired"
+            | "month_to_month"
+            | "vacating"
+            | "vacated";
+          occupied_sf?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          property_id?: string;
+          name?: string;
+          contact_id?: string | null;
+          unit_label?: string | null;
+          status?:
+            | "active"
+            | "expired"
+            | "month_to_month"
+            | "vacating"
+            | "vacated";
+          occupied_sf?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenants_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenants_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenants_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenants_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leases: {
+        Row: {
+          id: string;
+          org_id: string;
+          tenant_id: string;
+          property_id: string;
+          lease_type:
+            | "gross"
+            | "modified_gross"
+            | "nnn"
+            | "percentage"
+            | "ground"
+            | "month_to_month"
+            | "other";
+          start_date: string;
+          end_date: string | null;
+          rent_amount: number | null;
+          rent_frequency: "monthly" | "quarterly" | "annually";
+          rent_escalation_pct: number | null;
+          rent_escalation_date: string | null;
+          security_deposit: number | null;
+          cam_charges: number | null;
+          free_rent_months: number | null;
+          renewal_option_terms: string | null;
+          early_termination_terms: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          tenant_id: string;
+          property_id: string;
+          lease_type:
+            | "gross"
+            | "modified_gross"
+            | "nnn"
+            | "percentage"
+            | "ground"
+            | "month_to_month"
+            | "other";
+          start_date: string;
+          end_date?: string | null;
+          rent_amount?: number | null;
+          rent_frequency?: "monthly" | "quarterly" | "annually";
+          rent_escalation_pct?: number | null;
+          rent_escalation_date?: string | null;
+          security_deposit?: number | null;
+          cam_charges?: number | null;
+          free_rent_months?: number | null;
+          renewal_option_terms?: string | null;
+          early_termination_terms?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          tenant_id?: string;
+          property_id?: string;
+          lease_type?:
+            | "gross"
+            | "modified_gross"
+            | "nnn"
+            | "percentage"
+            | "ground"
+            | "month_to_month"
+            | "other";
+          start_date?: string;
+          end_date?: string | null;
+          rent_amount?: number | null;
+          rent_frequency?: "monthly" | "quarterly" | "annually";
+          rent_escalation_pct?: number | null;
+          rent_escalation_date?: string | null;
+          security_deposit?: number | null;
+          cam_charges?: number | null;
+          free_rent_months?: number | null;
+          renewal_option_terms?: string | null;
+          early_termination_terms?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leases_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leases_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leases_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      operating_statements: {
+        Row: {
+          id: string;
+          org_id: string;
+          property_id: string;
+          period_year: number;
+          period_month: number;
+          category: "revenue" | "operating_expense" | "capital_expense";
+          line_item: string;
+          actual_amount: number | null;
+          budget_amount: number | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          property_id: string;
+          period_year: number;
+          period_month: number;
+          category: "revenue" | "operating_expense" | "capital_expense";
+          line_item: string;
+          actual_amount?: number | null;
+          budget_amount?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          property_id?: string;
+          period_year?: number;
+          period_month?: number;
+          category?: "revenue" | "operating_expense" | "capital_expense";
+          line_item?: string;
+          actual_amount?: number | null;
+          budget_amount?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "operating_statements_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "operating_statements_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "operating_statements_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      capex_projects: {
+        Row: {
+          id: string;
+          org_id: string;
+          property_id: string;
+          deal_id: string | null;
+          name: string;
+          status:
+            | "planned"
+            | "in_progress"
+            | "completed"
+            | "on_hold"
+            | "cancelled";
+          budget_amount: number | null;
+          spent_amount: number | null;
+          start_date: string | null;
+          target_completion_date: string | null;
+          actual_completion_date: string | null;
+          contractor: string | null;
+          contractor_contact_id: string | null;
+          description: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          property_id: string;
+          deal_id?: string | null;
+          name: string;
+          status?:
+            | "planned"
+            | "in_progress"
+            | "completed"
+            | "on_hold"
+            | "cancelled";
+          budget_amount?: number | null;
+          spent_amount?: number | null;
+          start_date?: string | null;
+          target_completion_date?: string | null;
+          actual_completion_date?: string | null;
+          contractor?: string | null;
+          contractor_contact_id?: string | null;
+          description?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          property_id?: string;
+          deal_id?: string | null;
+          name?: string;
+          status?:
+            | "planned"
+            | "in_progress"
+            | "completed"
+            | "on_hold"
+            | "cancelled";
+          budget_amount?: number | null;
+          spent_amount?: number | null;
+          start_date?: string | null;
+          target_completion_date?: string | null;
+          actual_completion_date?: string | null;
+          contractor?: string | null;
+          contractor_contact_id?: string | null;
+          description?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "capex_projects_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "capex_projects_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "capex_projects_deal_id_fkey";
+            columns: ["deal_id"];
+            isOneToOne: false;
+            referencedRelation: "deals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "capex_projects_contractor_contact_id_fkey";
+            columns: ["contractor_contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "capex_projects_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      debt_instruments: {
+        Row: {
+          id: string;
+          org_id: string;
+          property_id: string | null;
+          deal_id: string | null;
+          lender_company_id: string | null;
+          loan_name: string;
+          loan_type:
+            | "permanent"
+            | "bridge"
+            | "construction"
+            | "mezzanine"
+            | "line_of_credit"
+            | "other";
+          original_amount: number | null;
+          current_balance: number | null;
+          interest_rate: number | null;
+          rate_type: "fixed" | "floating" | "hybrid";
+          spread_over_index: number | null;
+          index_name: string | null;
+          origination_date: string | null;
+          maturity_date: string | null;
+          io_period_months: number | null;
+          amortization_months: number | null;
+          annual_debt_service: number | null;
+          dscr: number | null;
+          ltv_current: number | null;
+          prepayment_terms: string | null;
+          covenants: Json;
+          recourse:
+            | "full"
+            | "partial"
+            | "non_recourse"
+            | null;
+          guarantor: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          property_id?: string | null;
+          deal_id?: string | null;
+          lender_company_id?: string | null;
+          loan_name: string;
+          loan_type:
+            | "permanent"
+            | "bridge"
+            | "construction"
+            | "mezzanine"
+            | "line_of_credit"
+            | "other";
+          original_amount?: number | null;
+          current_balance?: number | null;
+          interest_rate?: number | null;
+          rate_type: "fixed" | "floating" | "hybrid";
+          spread_over_index?: number | null;
+          index_name?: string | null;
+          origination_date?: string | null;
+          maturity_date?: string | null;
+          io_period_months?: number | null;
+          amortization_months?: number | null;
+          annual_debt_service?: number | null;
+          dscr?: number | null;
+          ltv_current?: number | null;
+          prepayment_terms?: string | null;
+          covenants?: Json;
+          recourse?:
+            | "full"
+            | "partial"
+            | "non_recourse"
+            | null;
+          guarantor?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          property_id?: string | null;
+          deal_id?: string | null;
+          lender_company_id?: string | null;
+          loan_name?: string;
+          loan_type?:
+            | "permanent"
+            | "bridge"
+            | "construction"
+            | "mezzanine"
+            | "line_of_credit"
+            | "other";
+          original_amount?: number | null;
+          current_balance?: number | null;
+          interest_rate?: number | null;
+          rate_type?: "fixed" | "floating" | "hybrid";
+          spread_over_index?: number | null;
+          index_name?: string | null;
+          origination_date?: string | null;
+          maturity_date?: string | null;
+          io_period_months?: number | null;
+          amortization_months?: number | null;
+          annual_debt_service?: number | null;
+          dscr?: number | null;
+          ltv_current?: number | null;
+          prepayment_terms?: string | null;
+          covenants?: Json;
+          recourse?:
+            | "full"
+            | "partial"
+            | "non_recourse"
+            | null;
+          guarantor?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "debt_instruments_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "debt_instruments_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "debt_instruments_deal_id_fkey";
+            columns: ["deal_id"];
+            isOneToOne: false;
+            referencedRelation: "deals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "debt_instruments_lender_company_id_fkey";
+            columns: ["lender_company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "debt_instruments_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
-    Views: {};
+    Views: {
+      v_rent_roll: {
+        Row: {
+          property_id: string;
+          tenant_id: string;
+          tenant_name: string;
+          unit_label: string | null;
+          lease_id: string;
+          lease_type: string;
+          start_date: string;
+          end_date: string | null;
+          rent_amount: number | null;
+          rent_frequency: string;
+          occupied_sf: number | null;
+          tenant_status: string;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       global_search: {
         Args: {
@@ -1238,6 +1806,23 @@ export type Database = {
           title: string;
           subtitle: string;
           rank: number;
+        }[];
+      };
+      get_expiring_leases: {
+        Args: {
+          org_id_input: string;
+          within_days?: number;
+        };
+        Returns: {
+          lease_id: string;
+          tenant_id: string;
+          tenant_name: string;
+          property_id: string;
+          property_name: string;
+          lease_type: string;
+          end_date: string;
+          rent_amount: number | null;
+          days_until_expiry: number;
         }[];
       };
     };
