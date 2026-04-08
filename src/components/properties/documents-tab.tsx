@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   FileText,
   Download,
   Trash2,
-  ExternalLink,
 } from "lucide-react";
 import {
   getDocuments,
@@ -46,26 +45,28 @@ export function DocumentsTab({ propertyId }: DocumentsTabProps) {
   const [documents, setDocuments] = useState<DocumentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<DocumentRow | null>(null);
-
-  const loadDocuments = useCallback(async () => {
-    setLoading(true);
-    const result = await getDocuments({
-      entityType: "property",
-      entityId: propertyId,
-    });
-    setDocuments((result.data ?? []) as DocumentRow[]);
-    setLoading(false);
-  }, [propertyId]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadDocuments();
-  }, [loadDocuments]);
+    let stale = false;
+    (async () => {
+      const result = await getDocuments({
+        entityType: "property",
+        entityId: propertyId,
+      });
+      if (!stale) {
+        setDocuments((result.data ?? []) as DocumentRow[]);
+        setLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, refreshKey]);
 
   async function handleDelete() {
     if (!deleteTarget) return;
     await deleteDocument(deleteTarget.id);
     setDeleteTarget(null);
-    loadDocuments();
+    setRefreshKey((k) => k + 1);
   }
 
   async function handleDownload(doc: DocumentRow) {

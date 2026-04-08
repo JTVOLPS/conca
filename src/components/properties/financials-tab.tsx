@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -86,39 +86,42 @@ export function FinancialsTab({ propertyId }: FinancialsTabProps) {
     field: "actual_amount" | "budget_amount";
   } | null>(null);
   const [editingCellValue, setEditingCellValue] = useState("");
-
-  const loadSummary = useCallback(async () => {
-    setLoading(true);
-    const result = await getOperatingSummary(propertyId, year);
-    setSummary((result.data ?? []) as MonthlySummary[]);
-    setLoading(false);
-  }, [propertyId, year]);
-
-  const loadMonthlyDetail = useCallback(async () => {
-    setMonthLoading(true);
-    const result = await getOperatingStatements(
-      propertyId,
-      year,
-      selectedMonth
-    );
-    setMonthlyStatements((result.data ?? []) as StatementRow[]);
-    setMonthLoading(false);
-  }, [propertyId, year, selectedMonth]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadSummary();
-  }, [loadSummary]);
+    let stale = false;
+    (async () => {
+      const result = await getOperatingSummary(propertyId, year);
+      if (!stale) {
+        setSummary((result.data ?? []) as MonthlySummary[]);
+        setLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, year, refreshKey]);
 
   useEffect(() => {
-    loadMonthlyDetail();
-  }, [loadMonthlyDetail]);
+    let stale = false;
+    (async () => {
+      setMonthLoading(true);
+      const result = await getOperatingStatements(
+        propertyId,
+        year,
+        selectedMonth
+      );
+      if (!stale) {
+        setMonthlyStatements((result.data ?? []) as StatementRow[]);
+        setMonthLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, year, selectedMonth, refreshKey]);
 
   async function handleDeleteStatement() {
     if (!deleteTarget) return;
     await deleteOperatingStatement(deleteTarget.id);
     setDeleteTarget(null);
-    loadMonthlyDetail();
-    loadSummary();
+    setRefreshKey((k) => k + 1);
   }
 
   async function handleInlineEdit(row: StatementRow) {
@@ -147,8 +150,7 @@ export function FinancialsTab({ propertyId }: FinancialsTabProps) {
     });
 
     setEditingCell(null);
-    loadMonthlyDetail();
-    loadSummary();
+    setRefreshKey((k) => k + 1);
   }
 
   // Group monthly statements by category
@@ -562,10 +564,7 @@ export function FinancialsTab({ propertyId }: FinancialsTabProps) {
           setFormOpen(open);
           if (!open) setEditingStatement(null);
         }}
-        onSuccess={() => {
-          loadMonthlyDetail();
-          loadSummary();
-        }}
+        onSuccess={() => setRefreshKey((k) => k + 1)}
       />
 
       <ConfirmDialog

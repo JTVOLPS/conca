@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   Plus,
@@ -68,23 +68,25 @@ export function DebtTab({ propertyId, dealId }: DebtTabProps) {
     null
   );
   const [deleteTarget, setDeleteTarget] = useState<DebtRow | null>(null);
-
-  const loadInstruments = useCallback(async () => {
-    setLoading(true);
-    const result = await getDebtInstruments({ propertyId, dealId });
-    setInstruments((result.data ?? []) as unknown as DebtRow[]);
-    setLoading(false);
-  }, [propertyId, dealId]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadInstruments();
-  }, [loadInstruments]);
+    let stale = false;
+    (async () => {
+      const result = await getDebtInstruments({ propertyId, dealId });
+      if (!stale) {
+        setInstruments((result.data ?? []) as unknown as DebtRow[]);
+        setLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, dealId, refreshKey]);
 
   async function handleDelete() {
     if (!deleteTarget) return;
     await deleteDebtInstrument(deleteTarget.id);
     setDeleteTarget(null);
-    loadInstruments();
+    setRefreshKey((k) => k + 1);
   }
 
   // Summary stats
@@ -364,7 +366,7 @@ export function DebtTab({ propertyId, dealId }: DebtTabProps) {
           setFormOpen(open);
           if (!open) setEditingInstrument(null);
         }}
-        onSuccess={loadInstruments}
+        onSuccess={() => setRefreshKey((k) => k + 1)}
       />
 
       <ConfirmDialog

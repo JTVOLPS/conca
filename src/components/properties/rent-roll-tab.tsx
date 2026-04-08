@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   Plus,
@@ -21,7 +21,7 @@ import {
   LEASE_TYPE_MAP,
   type LeaseType,
 } from "@/lib/constants/lease-types";
-import { cn, formatCurrency, formatNumber, formatDate } from "@/lib/utils";
+import { formatCurrency, formatNumber, formatDate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -106,17 +106,19 @@ export function RentRollTab({
   const [deleteTarget, setDeleteTarget] = useState<TenantRow | null>(null);
   const [expandedTenantId, setExpandedTenantId] = useState<string | null>(null);
   const [tenantLeases, setTenantLeases] = useState<LeaseRow[]>([]);
-
-  const loadTenants = useCallback(async () => {
-    setLoading(true);
-    const result = await getTenants(propertyId);
-    setTenants((result.data ?? []) as unknown as TenantRow[]);
-    setLoading(false);
-  }, [propertyId]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadTenants();
-  }, [loadTenants]);
+    let stale = false;
+    (async () => {
+      const result = await getTenants(propertyId);
+      if (!stale) {
+        setTenants((result.data ?? []) as unknown as TenantRow[]);
+        setLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, refreshKey]);
 
   async function handleExpandTenant(tenantId: string) {
     if (expandedTenantId === tenantId) {
@@ -133,7 +135,7 @@ export function RentRollTab({
     if (!deleteTarget) return;
     await deleteTenant(deleteTarget.id);
     setDeleteTarget(null);
-    loadTenants();
+    setRefreshKey((k) => k + 1);
   }
 
   // Compute summary stats
@@ -509,7 +511,7 @@ export function RentRollTab({
           setTenantFormOpen(open);
           if (!open) setEditingTenant(null);
         }}
-        onSuccess={loadTenants}
+        onSuccess={() => setRefreshKey((k) => k + 1)}
       />
 
       <LeaseForm
@@ -525,10 +527,9 @@ export function RentRollTab({
           }
         }}
         onSuccess={() => {
-          loadTenants();
+          setRefreshKey((k) => k + 1);
           if (expandedTenantId) {
             handleExpandTenant(expandedTenantId);
-            // Re-fetch by setting null first then expanding again
             setExpandedTenantId(null);
             setTimeout(() => handleExpandTenant(expandedTenantId), 100);
           }

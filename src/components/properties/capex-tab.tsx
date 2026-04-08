@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   Plus,
@@ -51,23 +51,25 @@ export function CapexTab({ propertyId }: CapexTabProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<CapexRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CapexRow | null>(null);
-
-  const loadProjects = useCallback(async () => {
-    setLoading(true);
-    const result = await getCapexProjects({ propertyId });
-    setProjects((result.data ?? []) as CapexRow[]);
-    setLoading(false);
-  }, [propertyId]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadProjects();
-  }, [loadProjects]);
+    let stale = false;
+    (async () => {
+      const result = await getCapexProjects({ propertyId });
+      if (!stale) {
+        setProjects((result.data ?? []) as CapexRow[]);
+        setLoading(false);
+      }
+    })();
+    return () => { stale = true; };
+  }, [propertyId, refreshKey]);
 
   async function handleDelete() {
     if (!deleteTarget) return;
     await deleteCapexProject(deleteTarget.id);
     setDeleteTarget(null);
-    loadProjects();
+    setRefreshKey((k) => k + 1);
   }
 
   // Summary stats
@@ -310,7 +312,7 @@ export function CapexTab({ propertyId }: CapexTabProps) {
           setFormOpen(open);
           if (!open) setEditingProject(null);
         }}
-        onSuccess={loadProjects}
+        onSuccess={() => setRefreshKey((k) => k + 1)}
       />
 
       <ConfirmDialog
