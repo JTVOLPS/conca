@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inviteSchema, type InviteFormData } from "@/lib/schemas/auth";
+import { sendEmail } from "@/lib/email/send";
+import { invitationTemplate } from "@/lib/email/templates";
 
 export async function createInvitation(formData: InviteFormData) {
   const supabase = await createClient();
@@ -39,7 +41,35 @@ export async function createInvitation(formData: InviteFormData) {
     expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
-  if (!error) revalidatePath("/settings/team");
+  if (!error) {
+    revalidatePath("/settings/team");
+
+    // Send invitation email
+    try {
+      const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+      // Get org name
+      const { data: org } = await supabase
+        .from("orgs")
+        .select("name")
+        .eq("id", orgId)
+        .single();
+
+      sendEmail({
+        to: parsed.data.email,
+        subject: `You've been invited to join ${org?.name ?? "a team"} on Conca`,
+        html: invitationTemplate({
+          orgName: org?.name ?? "a team",
+          inviteeName: "",
+          acceptUrl: `${appUrl}/invite/accept`,
+        }),
+      });
+    } catch {
+      // Email failure should not block invitation creation
+    }
+  }
+
   return { error: error?.message ?? null };
 }
 

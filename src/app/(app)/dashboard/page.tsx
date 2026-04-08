@@ -1,15 +1,14 @@
 import Link from "next/link";
 import {
-  Building2,
   Handshake,
   MapPin,
   Users,
-  DollarSign,
   AlertTriangle,
   Calendar,
+  CheckSquare,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,20 +16,22 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getExpiringLeases } from "@/lib/actions/leases";
 import { getDebtMaturitySchedule } from "@/lib/actions/debt-instruments";
+import { getPortfolioKPIs, getPipelineByStage, getDebtMaturityLadder } from "@/lib/actions/portfolio";
+import { getMyTasks, getOverdueTasks } from "@/lib/actions/tasks";
+import { PortfolioKpiCards } from "@/components/dashboard/portfolio-kpi-cards";
+import { PipelineSummary } from "@/components/dashboard/pipeline-summary";
+import { DebtMaturityCard } from "@/components/dashboard/debt-maturity-card";
+import { MyTasksCard } from "@/components/dashboard/my-tasks-card";
 
 async function getDashboardStats() {
   const supabase = await createClient();
 
-  const [dealsResult, pipelineResult, propertiesResult, contactsResult] =
+  const [dealsResult, propertiesResult, contactsResult] =
     await Promise.all([
       supabase
         .from("deals")
         .select("id", { count: "exact", head: true })
         .not("stage", "in", '("closed","dead")'),
-      supabase
-        .from("deal_economics")
-        .select("purchase_price, deals!inner(stage)")
-        .not("deals.stage", "in", '("closed","dead")'),
       supabase
         .from("properties")
         .select("id", { count: "exact", head: true }),
@@ -39,30 +40,41 @@ async function getDashboardStats() {
         .select("id", { count: "exact", head: true }),
     ]);
 
-  const pipelineValue =
-    pipelineResult.data?.reduce(
-      (sum, row) => sum + (row.purchase_price ?? 0),
-      0
-    ) ?? 0;
-
   return {
     activeDeals: dealsResult.count ?? 0,
-    pipelineValue,
     propertiesOwned: propertiesResult.count ?? 0,
     totalContacts: contactsResult.count ?? 0,
   };
 }
 
 export default async function DashboardPage() {
-  const [stats, expiringLeasesResult, debtMaturityResult] = await Promise.all([
+  const [
+    stats,
+    expiringLeasesResult,
+    debtMaturityResult,
+    kpis,
+    pipelineResult,
+    debtLadderResult,
+    myTasksResult,
+    overdueTasksResult,
+  ] = await Promise.all([
     getDashboardStats(),
     getExpiringLeases(90),
     getDebtMaturitySchedule(),
+    getPortfolioKPIs(),
+    getPipelineByStage(),
+    getDebtMaturityLadder(),
+    getMyTasks(5),
+    getOverdueTasks(),
   ]);
 
   const expiringLeases = expiringLeasesResult.data ?? [];
+  const overdueTasks = overdueTasksResult.data ?? [];
+  const myTasks = myTasksResult.data ?? [];
+  const pipelineStages = pipelineResult.data ?? [];
+  const debtMaturities = debtLadderResult.data ?? [];
 
-  // Filter debt maturities to within 12 months
+  // Filter debt maturities to within 12 months for alert banner
   const now = new Date();
   const twelveMonthsOut = new Date();
   twelveMonthsOut.setFullYear(now.getFullYear() + 1);
@@ -81,18 +93,12 @@ export default async function DashboardPage() {
     )
     .slice(0, 5);
 
-  const statCards = [
+  const secondaryStats = [
     {
       title: "Active Deals",
       value: stats.activeDeals.toString(),
       icon: Handshake,
       description: "Deals in pipeline",
-    },
-    {
-      title: "Pipeline Value",
-      value: formatCurrency(stats.pipelineValue),
-      icon: DollarSign,
-      description: "Total purchase price",
     },
     {
       title: "Properties",
@@ -162,9 +168,40 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
+      {overdueTasks.length > 0 && (
+        <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30">
+          <CardContent className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <CheckSquare className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <div>
+                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                  {overdueTasks.length} overdue task{overdueTasks.length !== 1 ? "s" : ""}
+                </p>
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Review and update your overdue tasks.
+                </p>
+              </div>
+            </div>
+            <Link href="/tasks">
+              <Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950">
+                View Tasks
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Portfolio KPI row */}
+      <PortfolioKpiCards
+        aum={kpis.aum ?? 0}
+        noi={kpis.noi ?? 0}
+        occupancy={kpis.occupancy ?? 0}
+        weightedCapRate={kpis.weightedCapRate ?? 0}
+      />
+
+      {/* Secondary stats row */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        {secondaryStats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -182,77 +219,69 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent activity sections */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Recent Deals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EmptyState
-              icon={<Building2 className="h-5 w-5" />}
-              title="No recent deals"
-              description="Deals you create or update will appear here."
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Expiring Leases</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {soonestLeases.length === 0 ? (
-              <EmptyState
-                icon={<Calendar className="h-5 w-5" />}
-                title="No expiring leases"
-                description="No leases expiring in the next 90 days."
-              />
-            ) : (
-              <div className="space-y-3">
-                {soonestLeases.map(
-                  (lease: {
-                    lease_id: string;
-                    property_name?: string;
-                    tenant_name?: string;
-                    end_date: string;
-                    days_until_expiry?: number;
-                  }) => {
-                    const daysLeft =
-                      lease.days_until_expiry ??
-                      Math.ceil(
-                        (new Date(lease.end_date).getTime() - now.getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      );
-                    return (
-                      <div
-                        key={lease.lease_id}
-                        className="flex items-center justify-between rounded-md border border-border px-3 py-2"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">
-                            {lease.property_name ?? "Property"}
-                          </p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {lease.tenant_name ?? "Tenant"} &middot; Expires{" "}
-                            {formatDate(lease.end_date)}
-                          </p>
-                        </div>
-                        <Badge
-                          variant={daysLeft <= 30 ? "destructive" : "secondary"}
-                          className="ml-2 shrink-0"
-                        >
-                          {daysLeft}d
-                        </Badge>
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Three-column grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <MyTasksCard tasks={myTasks as Array<{ id: string; title: string; due_date: string | null; priority: string; entity_type: string | null; entity_id: string | null }>} />
+        <PipelineSummary stages={pipelineStages as Array<{ stage: string; deal_count: number; total_value: number }>} />
+        <DebtMaturityCard maturities={debtMaturities as Array<{ maturity_year: number; loan_count: number; total_balance: number }>} />
       </div>
+
+      {/* Bottom row: Expiring Leases */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Expiring Leases</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {soonestLeases.length === 0 ? (
+            <EmptyState
+              icon={<Calendar className="h-5 w-5" />}
+              title="No expiring leases"
+              description="No leases expiring in the next 90 days."
+            />
+          ) : (
+            <div className="space-y-3">
+              {soonestLeases.map(
+                (lease: {
+                  lease_id: string;
+                  property_name?: string;
+                  tenant_name?: string;
+                  end_date: string;
+                  days_until_expiry?: number;
+                }) => {
+                  const daysLeft =
+                    lease.days_until_expiry ??
+                    Math.ceil(
+                      (new Date(lease.end_date).getTime() - now.getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                  return (
+                    <div
+                      key={lease.lease_id}
+                      className="flex items-center justify-between rounded-md border border-border px-3 py-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {lease.property_name ?? "Property"}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {lease.tenant_name ?? "Tenant"} &middot; Expires{" "}
+                          {formatDate(lease.end_date)}
+                        </p>
+                      </div>
+                      <Badge
+                        variant={daysLeft <= 30 ? "destructive" : "secondary"}
+                        className="ml-2 shrink-0"
+                      >
+                        {daysLeft}d
+                      </Badge>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

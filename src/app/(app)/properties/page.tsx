@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { PropertiesListClient } from "./properties-list-client";
+import { PropertiesExportWrapper } from "./properties-export-wrapper";
 
 interface Props {
   searchParams: Promise<{
@@ -42,6 +43,7 @@ export default async function PropertiesPage({ searchParams }: Props) {
   return (
     <div className="space-y-6">
       <PageHeader title="Properties" description="Manage your property portfolio">
+        <PropertiesExportWrapper properties={data as Record<string, unknown>[]} />
         <Link href="/properties/new">
           <Button>New Property</Button>
         </Link>

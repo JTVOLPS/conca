@@ -39,6 +39,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { InteractionForm } from "@/components/contacts/interaction-form";
+import { EntityTasksPanel } from "@/components/tasks/entity-tasks-panel";
 
 interface ContactCompany {
   id: string;
@@ -432,6 +433,16 @@ export function ContactDetailClient({
           </Card>
         </div>
       </div>
+
+      {/* Tasks */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Tasks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EntityTasksPanel entityType="contact" entityId={contact.id} />
+        </CardContent>
+      </Card>
 
       {/* Delete confirmation dialog */}
       <ConfirmDialog

@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { InteractionForm } from "@/components/contacts/interaction-form";
+import { EntityTasksPanel } from "@/components/tasks/entity-tasks-panel";
 
 interface ContactCompany {
   id: string;
@@ -419,6 +420,16 @@ export function CompanyDetailClient({ company }: CompanyDetailClientProps) {
           </Card>
         </div>
       </div>
+
+      {/* Tasks */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Tasks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EntityTasksPanel entityType="company" entityId={company.id} />
+        </CardContent>
+      </Card>
 
       {/* Delete confirmation dialog */}
       <ConfirmDialog

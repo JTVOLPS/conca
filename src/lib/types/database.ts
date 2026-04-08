@@ -1164,6 +1164,7 @@ export type Database = {
           assigned_to: string | null;
           created_by: string | null;
           completed_at: string | null;
+          position: number;
           created_at: string;
           updated_at: string;
         };
@@ -1185,6 +1186,7 @@ export type Database = {
           assigned_to?: string | null;
           created_by?: string | null;
           completed_at?: string | null;
+          position?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -1206,6 +1208,7 @@ export type Database = {
           assigned_to?: string | null;
           created_by?: string | null;
           completed_at?: string | null;
+          position?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -1823,6 +1826,38 @@ export type Database = {
           end_date: string;
           rent_amount: number | null;
           days_until_expiry: number;
+        }[];
+      };
+      portfolio_aum: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      portfolio_noi: {
+        Args: { p_year: number };
+        Returns: number;
+      };
+      portfolio_occupancy: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      portfolio_weighted_cap_rate: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      pipeline_by_stage: {
+        Args: Record<string, never>;
+        Returns: {
+          stage: string;
+          deal_count: number;
+          total_value: number;
+        }[];
+      };
+      debt_maturity_ladder: {
+        Args: Record<string, never>;
+        Returns: {
+          maturity_year: number;
+          loan_count: number;
+          total_balance: number;
         }[];
       };
     };

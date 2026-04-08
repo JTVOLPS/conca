@@ -25,6 +25,7 @@ import { DealActivityPanel } from "./deal-activity-panel";
 import { DealCapexTab } from "@/components/deals/deal-capex-tab";
 import { DealDebtTab } from "@/components/deals/deal-debt-tab";
 import { DealDocumentsTab } from "@/components/deals/deal-documents-tab";
+import { EntityTasksPanel } from "@/components/tasks/entity-tasks-panel";
 import {
   MapPin,
   Calendar,
@@ -141,6 +142,7 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
         <TabsTrigger value="economics">Economics</TabsTrigger>
         <TabsTrigger value="contacts">Contacts</TabsTrigger>
         <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsTrigger value="tasks">Tasks</TabsTrigger>
         <TabsTrigger value="capex">CapEx</TabsTrigger>
         <TabsTrigger value="debt">Debt</TabsTrigger>
         <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -363,6 +365,13 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
       <TabsContent value="activity">
         <div className="mt-4">
           <DealActivityPanel dealId={deal.id} interactions={interactions} />
+        </div>
+      </TabsContent>
+
+      {/* Tasks Tab */}
+      <TabsContent value="tasks">
+        <div className="mt-4">
+          <EntityTasksPanel entityType="deal" entityId={deal.id} />
         </div>
       </TabsContent>
 

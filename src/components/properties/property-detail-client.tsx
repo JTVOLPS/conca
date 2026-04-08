@@ -31,6 +31,7 @@ import { FinancialsTab } from "./financials-tab";
 import { CapexTab } from "./capex-tab";
 import { DebtTab } from "./debt-tab";
 import { DocumentsTab } from "./documents-tab";
+import { EntityTasksPanel } from "@/components/tasks/entity-tasks-panel";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,6 +99,7 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
         <TabsTrigger value="financials">Financials</TabsTrigger>
         <TabsTrigger value="capex">CapEx</TabsTrigger>
         <TabsTrigger value="debt">Debt</TabsTrigger>
+        <TabsTrigger value="tasks">Tasks</TabsTrigger>
         <TabsTrigger value="documents">Documents</TabsTrigger>
       </TabsList>
 
@@ -339,6 +341,13 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
       {/* Debt Tab */}
       <TabsContent value="debt">
         <DebtTab propertyId={property.id} />
+      </TabsContent>
+
+      {/* Tasks Tab */}
+      <TabsContent value="tasks">
+        <div className="mt-4">
+          <EntityTasksPanel entityType="property" entityId={property.id} />
+        </div>
       </TabsContent>
 
       {/* Documents Tab */}

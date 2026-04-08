@@ -9,6 +9,7 @@ import {
   Handshake,
   MapPin,
   FileText,
+  CheckSquare,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Deals", href: "/deals", icon: Handshake },
   { label: "Properties", href: "/properties", icon: MapPin },
   { label: "Documents", href: "/documents", icon: FileText },
+  { label: "Tasks", href: "/tasks", icon: CheckSquare },
 ];
 
 const bottomNavItems = [

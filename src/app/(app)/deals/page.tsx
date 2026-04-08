@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { DealsViewClient } from "./deals-view-client";
+import { DealsExportWrapper } from "./deals-export-wrapper";
 
 export default async function DealsPage() {
   const { data: deals, error } = await getDealsByStage();
@@ -23,6 +24,7 @@ export default async function DealsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Deals" description="Track your deal pipeline">
+        <DealsExportWrapper deals={deals as Record<string, unknown>[]} />
         <Link href="/deals/new">
           <Button>New Deal</Button>
         </Link>
