@@ -42,6 +42,10 @@ export type Lease = Tables<"leases">;
 export type OperatingStatement = Tables<"operating_statements">;
 export type CapexProject = Tables<"capex_projects">;
 export type DebtInstrument = Tables<"debt_instruments">;
+export type Investor = Tables<"investors">;
+export type InvestorCommitment = Tables<"investor_commitments">;
+export type InvestorDistribution = Tables<"investor_distributions">;
+export type WaterfallTier = Tables<"waterfall_tiers">;
 
 // ---------------------------------------------------------------------------
 // Enum-like union types extracted from the schema for standalone use
@@ -67,3 +71,6 @@ export type OperatingCategory = OperatingStatement["category"];
 export type CapexStatus = CapexProject["status"];
 export type LoanType = DebtInstrument["loan_type"];
 export type RateType = DebtInstrument["rate_type"];
+export type InvestorType = Investor["type"];
+export type CommitmentStatus = InvestorCommitment["status"];
+export type DistributionType = InvestorDistribution["type"];

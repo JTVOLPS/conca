@@ -272,10 +272,129 @@ Schema for custom fields per asset class.
 
 ---
 
-## Future Tables (Schema Ready, No UI Yet)
+## Asset Management Module (Phase 2)
+
+### `tenants`
+Rent roll tracking per property.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| org_id | uuid FK orgs | |
+| property_id | uuid FK properties | |
+| name | text | Required |
+| contact_id | uuid FK contacts | Nullable — link to CRM contact |
+| unit_label | text | Suite/unit identifier |
+| status | text CHECK | active, vacant, notice_given, month_to_month |
+| occupied_sf | numeric(12,2) | |
+| notes | text | |
+| created_by | uuid FK auth.users | |
+| created_at, updated_at | timestamptz | |
+
+### `leases`
+Lease terms and escalations.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| org_id | uuid FK orgs | |
+| tenant_id | uuid FK tenants | |
+| property_id | uuid FK properties | |
+| lease_type | text CHECK | gross, modified_gross, nnn, percentage, ground, month_to_month, other |
+| start_date | date | |
+| end_date | date | Nullable |
+| rent_amount | numeric(15,2) | |
+| rent_frequency | text CHECK | monthly, quarterly, annually |
+| rent_escalation_pct | numeric(5,2) | |
+| rent_escalation_date | date | |
+| security_deposit | numeric(15,2) | |
+| cam_charges | numeric(15,2) | |
+| free_rent_months | integer | |
+| renewal_option_terms | text | |
+| early_termination_terms | text | |
+| notes | text | |
+| created_at, updated_at | timestamptz | |
+
+### `operating_statements`
+Monthly revenue and expense tracking with actual vs budget.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| org_id | uuid FK orgs | |
+| property_id | uuid FK properties | |
+| period_year | integer | |
+| period_month | integer | 1–12 |
+| category | text CHECK | revenue, operating_expense, capital_expense, debt_service, other |
+| line_item | text | e.g., "Base Rent", "Utilities" |
+| actual_amount | numeric(15,2) | |
+| budget_amount | numeric(15,2) | |
+| notes | text | |
+| created_by | uuid FK auth.users | |
+| created_at, updated_at | timestamptz | |
+
+**Unique constraint**: (org_id, property_id, period_year, period_month, category, line_item)
+
+### `capex_projects`
+Capital expenditure tracking.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| org_id | uuid FK orgs | |
+| property_id | uuid FK properties | Nullable |
+| deal_id | uuid FK deals | Nullable |
+| name | text | Required |
+| description | text | |
+| status | text CHECK | planned, in_progress, completed, on_hold, cancelled |
+| budgeted_amount | numeric(15,2) | |
+| actual_amount | numeric(15,2) | |
+| start_date | date | |
+| end_date | date | |
+| contractor | text | |
+| notes | text | |
+| created_by | uuid FK auth.users | |
+| created_at, updated_at | timestamptz | |
+
+### `debt_instruments`
+Loan and financing tracking.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| org_id | uuid FK orgs | |
+| property_id | uuid FK properties | Nullable |
+| deal_id | uuid FK deals | Nullable |
+| lender_company_id | uuid FK companies | |
+| loan_name | text | |
+| loan_type | text CHECK | permanent, bridge, construction, mezzanine, line_of_credit, other |
+| original_amount | numeric(15,2) | |
+| current_balance | numeric(15,2) | |
+| interest_rate | numeric(6,4) | |
+| rate_type | text CHECK | fixed, variable, hybrid |
+| spread_bps | integer | Basis points over index |
+| index_name | text | e.g., SOFR, Prime |
+| origination_date | date | |
+| maturity_date | date | |
+| io_period_months | integer | Interest-only period |
+| amortization_months | integer | |
+| monthly_payment | numeric(15,2) | |
+| dscr | numeric(6,2) | Debt service coverage ratio |
+| ltv | numeric(5,4) | Loan-to-value |
+| recourse | text CHECK | full, partial, non_recourse |
+| covenants | jsonb | Structured covenant terms |
+| prepayment_terms | text | |
+| extension_options | text | |
+| notes | text | |
+| created_by | uuid FK auth.users | |
+| created_at, updated_at | timestamptz | |
+
+---
+
+## Documents & Files
 
 ### `documents`
-File storage linked to entities.
+File storage linked to entities via Supabase Storage.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -287,28 +406,37 @@ File storage linked to entities.
 | mime_type | text | |
 | entity_type | text | deal, property, contact, company |
 | entity_id | uuid | Polymorphic FK |
-| category | text | LOI, PSA, Appraisal, etc. |
+| category | text | LOI, PSA, Appraisal, Title, Environmental, Survey, Financials, Lease, Insurance, Legal, Photo, Other |
 | tags | text[] | |
 | version | integer | Default 1 |
+| notes | text | |
+| document_group_id | uuid | Self-referencing first upload for version grouping |
 | uploaded_by | uuid FK auth.users | |
 | created_at | timestamptz | |
+| updated_at | timestamptz | |
+
+---
+
+## Tasks & Workflow
 
 ### `tasks`
+Assignable tasks linked to entities.
 
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
 | org_id | uuid FK orgs | |
-| title | text | |
+| title | text | Required |
 | description | text | |
-| status | text | todo, in_progress, done, cancelled |
-| priority | text | low, medium, high, urgent |
+| status | text CHECK | todo, in_progress, done, cancelled |
+| priority | text CHECK | low, medium, high, urgent |
 | due_date | date | |
-| entity_type | text | deal, property, contact, company |
+| entity_type | text CHECK | deal, property, contact, company |
 | entity_id | uuid | Polymorphic FK |
 | assigned_to | uuid FK auth.users | |
 | created_by | uuid FK auth.users | |
-| completed_at | timestamptz | |
+| completed_at | timestamptz | Set when status → done |
+| position | integer | Default 0, for kanban ordering |
 | created_at, updated_at | timestamptz | |
 
 ### `audit_log`
@@ -325,6 +453,34 @@ Application-level change tracking.
 | old_data | jsonb | Previous state |
 | new_data | jsonb | New state |
 | created_at | timestamptz | |
+
+---
+
+## Views
+
+### `v_rent_roll`
+Denormalized view joining tenants + latest lease with computed lease_status.
+
+| Column | Source |
+|--------|-------|
+| property_id | tenants |
+| tenant_id, tenant_name, unit_label, tenant_status, occupied_sf | tenants |
+| lease_id, lease_type, start_date, end_date, rent_amount, rent_frequency | leases (latest) |
+
+---
+
+## Functions
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `global_search(query, limit)` | rows | Full-text + trigram search across all entities |
+| `get_expiring_leases(org_id, within_days)` | rows | Leases expiring within N days |
+| `portfolio_aum()` | numeric | Sum of purchase_price for closed deals |
+| `portfolio_noi(p_year)` | numeric | Revenue minus expenses for a given year |
+| `portfolio_occupancy()` | numeric | Occupied SF / total SF percentage |
+| `portfolio_weighted_cap_rate()` | numeric | Purchase-price-weighted avg cap rate |
+| `pipeline_by_stage()` | rows | Deal count and total value per stage |
+| `debt_maturity_ladder()` | rows | Debt count and balance grouped by maturity year |
 
 ---
 

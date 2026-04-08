@@ -1777,6 +1777,316 @@ export type Database = {
           },
         ];
       };
+      investors: {
+        Row: {
+          id: string;
+          org_id: string;
+          name: string;
+          type: "individual" | "entity" | "fund" | "family_office" | "institution" | "other";
+          contact_id: string | null;
+          company_id: string | null;
+          accredited: boolean;
+          tax_id: string | null;
+          entity_name: string | null;
+          address_line1: string | null;
+          address_city: string | null;
+          address_state: string | null;
+          address_zip: string | null;
+          notes: string | null;
+          tags: string[];
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          name: string;
+          type?: "individual" | "entity" | "fund" | "family_office" | "institution" | "other";
+          contact_id?: string | null;
+          company_id?: string | null;
+          accredited?: boolean;
+          tax_id?: string | null;
+          entity_name?: string | null;
+          address_line1?: string | null;
+          address_city?: string | null;
+          address_state?: string | null;
+          address_zip?: string | null;
+          notes?: string | null;
+          tags?: string[];
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          name?: string;
+          type?: "individual" | "entity" | "fund" | "family_office" | "institution" | "other";
+          contact_id?: string | null;
+          company_id?: string | null;
+          accredited?: boolean;
+          tax_id?: string | null;
+          entity_name?: string | null;
+          address_line1?: string | null;
+          address_city?: string | null;
+          address_state?: string | null;
+          address_zip?: string | null;
+          notes?: string | null;
+          tags?: string[];
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "investors_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investors_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investors_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investors_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      investor_commitments: {
+        Row: {
+          id: string;
+          org_id: string;
+          investor_id: string;
+          deal_id: string;
+          committed_amount: number;
+          called_amount: number;
+          status: "committed" | "partially_called" | "fully_called" | "returned";
+          commitment_date: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          investor_id: string;
+          deal_id: string;
+          committed_amount?: number;
+          called_amount?: number;
+          status?: "committed" | "partially_called" | "fully_called" | "returned";
+          commitment_date?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          investor_id?: string;
+          deal_id?: string;
+          committed_amount?: number;
+          called_amount?: number;
+          status?: "committed" | "partially_called" | "fully_called" | "returned";
+          commitment_date?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "investor_commitments_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_commitments_investor_id_fkey";
+            columns: ["investor_id"];
+            isOneToOne: false;
+            referencedRelation: "investors";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_commitments_deal_id_fkey";
+            columns: ["deal_id"];
+            isOneToOne: false;
+            referencedRelation: "deals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_commitments_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      investor_distributions: {
+        Row: {
+          id: string;
+          org_id: string;
+          investor_id: string;
+          deal_id: string;
+          commitment_id: string | null;
+          distribution_date: string;
+          amount: number;
+          type: "preferred_return" | "profit_share" | "return_of_capital" | "refinance_proceeds" | "sale_proceeds" | "other";
+          period_label: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          investor_id: string;
+          deal_id: string;
+          commitment_id?: string | null;
+          distribution_date: string;
+          amount: number;
+          type?: "preferred_return" | "profit_share" | "return_of_capital" | "refinance_proceeds" | "sale_proceeds" | "other";
+          period_label?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          investor_id?: string;
+          deal_id?: string;
+          commitment_id?: string | null;
+          distribution_date?: string;
+          amount?: number;
+          type?: "preferred_return" | "profit_share" | "return_of_capital" | "refinance_proceeds" | "sale_proceeds" | "other";
+          period_label?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "investor_distributions_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_distributions_investor_id_fkey";
+            columns: ["investor_id"];
+            isOneToOne: false;
+            referencedRelation: "investors";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_distributions_deal_id_fkey";
+            columns: ["deal_id"];
+            isOneToOne: false;
+            referencedRelation: "deals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_distributions_commitment_id_fkey";
+            columns: ["commitment_id"];
+            isOneToOne: false;
+            referencedRelation: "investor_commitments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "investor_distributions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      waterfall_tiers: {
+        Row: {
+          id: string;
+          org_id: string;
+          deal_id: string;
+          tier_order: number;
+          tier_label: string;
+          hurdle_rate: number | null;
+          lp_split_pct: number | null;
+          gp_split_pct: number | null;
+          is_catch_up: boolean;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          deal_id: string;
+          tier_order: number;
+          tier_label: string;
+          hurdle_rate?: number | null;
+          lp_split_pct?: number | null;
+          gp_split_pct?: number | null;
+          is_catch_up?: boolean;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          deal_id?: string;
+          tier_order?: number;
+          tier_label?: string;
+          hurdle_rate?: number | null;
+          lp_split_pct?: number | null;
+          gp_split_pct?: number | null;
+          is_catch_up?: boolean;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "waterfall_tiers_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "orgs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "waterfall_tiers_deal_id_fkey";
+            columns: ["deal_id"];
+            isOneToOne: false;
+            referencedRelation: "deals";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       v_rent_roll: {
