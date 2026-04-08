@@ -11,6 +11,7 @@ import {
   FileText,
   CheckSquare,
   Settings,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,6 +26,7 @@ const navItems = [
   { label: "Properties", href: "/properties", icon: MapPin },
   { label: "Documents", href: "/documents", icon: FileText },
   { label: "Tasks", href: "/tasks", icon: CheckSquare },
+  { label: "Investors", href: "/investors", icon: UserCheck },
 ];
 
 const bottomNavItems = [

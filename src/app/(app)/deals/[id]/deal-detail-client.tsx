@@ -25,6 +25,8 @@ import { DealActivityPanel } from "./deal-activity-panel";
 import { DealCapexTab } from "@/components/deals/deal-capex-tab";
 import { DealDebtTab } from "@/components/deals/deal-debt-tab";
 import { DealDocumentsTab } from "@/components/deals/deal-documents-tab";
+import { DealInvestorsTab } from "@/components/deals/deal-investors-tab";
+import { DealWaterfallEditor } from "@/components/deals/deal-waterfall-editor";
 import { EntityTasksPanel } from "@/components/tasks/entity-tasks-panel";
 import {
   MapPin,
@@ -145,6 +147,8 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
         <TabsTrigger value="tasks">Tasks</TabsTrigger>
         <TabsTrigger value="capex">CapEx</TabsTrigger>
         <TabsTrigger value="debt">Debt</TabsTrigger>
+        <TabsTrigger value="investors">Investors</TabsTrigger>
+        <TabsTrigger value="waterfall">Waterfall</TabsTrigger>
         <TabsTrigger value="documents">Documents</TabsTrigger>
       </TabsList>
 
@@ -386,6 +390,20 @@ export function DealDetailClient({ deal }: DealDetailClientProps) {
       <TabsContent value="debt">
         <div className="mt-4">
           <DealDebtTab dealId={deal.id} />
+        </div>
+      </TabsContent>
+
+      {/* Investors Tab */}
+      <TabsContent value="investors">
+        <div className="mt-4">
+          <DealInvestorsTab dealId={deal.id} economics={economics as Parameters<typeof DealInvestorsTab>[0]["economics"]} />
+        </div>
+      </TabsContent>
+
+      {/* Waterfall Tab */}
+      <TabsContent value="waterfall">
+        <div className="mt-4">
+          <DealWaterfallEditor dealId={deal.id} />
         </div>
       </TabsContent>
 
