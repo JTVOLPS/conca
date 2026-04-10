@@ -40,19 +40,10 @@ npm install
 ### 2. Set up Supabase
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run each migration file in order:
-   - `supabase/migrations/00001_extensions_and_functions.sql`
-   - `supabase/migrations/00002_core_tables.sql`
-   - `supabase/migrations/00003_contacts.sql`
-   - `supabase/migrations/00004_properties.sql`
-   - `supabase/migrations/00005_deals.sql`
-   - `supabase/migrations/00006_future_schema.sql`
-   - `supabase/migrations/00007_search_triggers.sql`
-   - `supabase/migrations/00008_global_search.sql`
-   - `supabase/migrations/00009_rls_policies.sql`
-   - `supabase/migrations/00010_audit.sql`
-   - `supabase/migrations/00011_seed_field_definitions.sql`
-3. Enable the `pg_trgm` extension in **Database > Extensions**
+2. Go to **SQL Editor** and paste the contents of `supabase/all_migrations.sql` — this single file contains all 24 migrations in order
+3. The `pg_trgm` extension is enabled automatically by the first migration
+
+**Alternative (Supabase CLI):** If you have Docker running locally, you can use `npx supabase start` to run a fully local Supabase instance. The migration files in `supabase/migrations/` use the Supabase CLI timestamp format and will be applied automatically.
 
 ### 3. Configure environment variables
 
